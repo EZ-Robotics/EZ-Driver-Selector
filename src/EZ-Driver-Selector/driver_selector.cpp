@@ -51,10 +51,9 @@ void driver_selector_task() {
   int selected_line = 1;
 
   while (true) {
-
     if (master.get_digital_new_press(DIGITAL_L1)) {
+      queue_add(selected_line, 0, " ");
       selected_line = selected_line == 1 ? 2 : 1;
-      queue_add(selected_line == 1 ? 2 : 1, 0, " ");
       queue_add(selected_line, 0, "|");
     }
 
