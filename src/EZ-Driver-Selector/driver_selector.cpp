@@ -46,11 +46,10 @@ void driver_selector_task() {
   bool enabled = false;
 
   int timer = 0;
-  int was_pressed = 0;
   bool was_triggered = false;
 
   while (true) {
-    if (master.get_digital(DIGITAL_A) && !pros::competition::is_connected()) {
+    if (master.get_digital(DIGITAL_Y) && !pros::competition::is_connected()) {
       if (timer > 500 && !was_triggered) {
         enabled = !enabled;
         was_triggered = true;
@@ -72,8 +71,7 @@ void driver_selector_task() {
     }
 
     if (enabled) {
-      was_pressed = master.get_digital(DIGITAL_A);
-      if (master.get_digital(DIGITAL_A) && !was_pressed) {
+      if (master.get_digital_new_press(DIGITAL_A)) {
         if (cursor_placement == 2) {
           selected = !selected;
           cursor = selected ? selected_cursor : unselected_cursor;

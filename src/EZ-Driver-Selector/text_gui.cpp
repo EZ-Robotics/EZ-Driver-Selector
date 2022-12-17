@@ -70,9 +70,9 @@ void update_parameter() {
   if (cursor_placement == 1) queue_add(2, 0, cursor);
   queue_add(2, 1, title);
   if (cursor_placement == 2)
-    queue_add(2, title.length() + (19 - gap), cursor + parameter + "     ");
+    queue_add(2, title.length() + (18 - gap), cursor + parameter + "     ");
   else
-    queue_add(2, title.length() + (20 - gap), parameter + "     ");
+    queue_add(2, title.length() + (19 - gap), parameter + "     ");
 }
 
 void update_name() {
