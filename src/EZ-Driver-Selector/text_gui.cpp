@@ -1,9 +1,5 @@
-#include "text_gui.hpp"
-
 #include "main.h"
-#include "queue.hpp"
 
-using namespace driver;
 
 double add_driver_default(driver_values *driver, int param, double added) {
   double min = testing[parameter_place].min_size;
@@ -48,7 +44,7 @@ double add_driver_default(driver_values *driver, int param, double added) {
 }
 
 double current_value(driver_values *driver, int param) {
-  return driver::add_driver_default(driver, param, 0);
+  return add_driver_default(driver, param, 0);
 }
 
 void update_parameter() {
@@ -57,13 +53,13 @@ void update_parameter() {
 
   // Parameter is a number
   if (testing[parameter_place].names.size() == 0) {
-    std::string num_text = std::to_string(driver::current_value(&drivers[current_driver], parameter_place));
+    std::string num_text = std::to_string(current_value(&drivers[current_driver], parameter_place));
     parameter = num_text.substr(0, num_text.find(".") + 2);
   }
 
   // Parameter is a word
   else {
-    parameter = testing[parameter_place].names[driver::current_value(&drivers[current_driver], parameter_place)];
+    parameter = testing[parameter_place].names[current_value(&drivers[current_driver], parameter_place)];
   }
 
   int gap = title.length() + parameter.length();
@@ -87,8 +83,8 @@ void update_name() {
 void update_cursor() {
   queue_clear_line(1);
   queue_clear_line(2);
-  driver::update_name();
-  driver::update_parameter();
+  update_name();
+  update_parameter();
 }
 
 void update_battery() {

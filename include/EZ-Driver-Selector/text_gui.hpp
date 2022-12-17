@@ -1,6 +1,6 @@
-#include "main.h"
+#include "api.h"
+#include "driver_selector.hpp"
 
-namespace driver {
 inline std::string unselected_cursor = "#";
 inline std::string selected_cursor = "&";
 inline std::string cursor = unselected_cursor;
@@ -14,4 +14,3 @@ void update_parameter();
 void update_name();
 void update_cursor();
 void update_battery();
-}  // namespace driver

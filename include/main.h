@@ -43,7 +43,7 @@
 //#include "pros/api_legacy.h"
 
 inline pros::Controller master(pros::E_CONTROLLER_MASTER);
-#include "EZ-Driver-Selector/driver_selector.hpp"
+#include "EZ-Driver-Selector/api.hpp"
 
 /**
  * If you find doing pros::Motor() to be tedious and you'd prefer just to do

@@ -1,8 +1,6 @@
 #include "main.h"
-#include "queue.hpp"
-#include "text_gui.hpp"
 
-using namespace driver;
+
 
 void increase_parameter() {
   if (parameter_place >= testing.size() - 1)
