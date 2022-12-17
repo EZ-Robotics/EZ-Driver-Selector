@@ -1,65 +1,91 @@
 #include "main.h"
+#include "queue.hpp"
 
-std::vector<std::string> testing = {"hi"};
-
-// left curve
-// right curve
-// active brake
-// brake type
-// drive type
-
-struct controllerScreenQueue {
-  std::uint8_t line;
-  std::uint8_t col;
-  std::string str;
+struct controllerObjects {
+  std::string name;
+  double increase_by;
+  double min_size;
+  double max_size;
+  std::vector<std::string> names;
 };
-std::vector<controllerScreenQueue> queue;
 
-void queue_add(std::uint8_t line, std::uint8_t col, std::string str) {
-  queue.push_back({line, col, str});
-}
+enum drive_mode_t { tank = 0,
+                    normal_split_arcade = 1,
+                    flipped_split_arcade = 2,
+                    normal_single_arcade = 3,
+                    flipped_single_arcade = 4 };
 
-void queue_run() {
-  if (queue.empty())
-    return;
+// Brake mode values: https://pros.cs.purdue.edu/v5/api/cpp/motors.html#pros-motor-brake-mode-e-t
 
-  master.set_text(queue[0].line, queue[0].col, queue[0].str);
-  queue.erase(queue.begin());
-}
+std::vector<controllerObjects> testing = {
+    {"Joy", 1, 0, 4, {"Tank", "Spl Arc", "Fl Spl Arc", "Sing Arc", "Fl Sing Arc"}},
+    {"Brake T", 1, 0, 2, {"Coast", "Brake", "Hold"}},
+    {"L Curve", 0.1, 0.0, 10.0},
+    {"R Curve", 0.1, 0.0, 10.0},
+    {"Active Brake", 0.1, 0.0, 10.0},
+};
 
-void queue_clear_line(std::uint8_t line) {
-  queue_add(line, 0, "                  ");
-}
+struct driver_values {
+  std::string name = "Jess:";
+  drive_mode_t drive_mode;
+  pros::motor_brake_mode_e_t brake_type;
+  double curve_l;
+  double curve_r;
+  double active_brake;
+};
 
-void queue_clear_screen() {
-  queue_clear_line(0);
-  queue_clear_line(1);
-  queue_clear_line(2);
-}
+driver_values jess = {
+    "jess",
+    tank,
+    pros::E_MOTOR_BRAKE_BRAKE,
+    0,
+    0,
+    0.1};
 
-int prev_line = -1;
-void set_text(std::uint8_t line, std::uint8_t col, const std::string &str) {
-  if (prev_line != -1)
-    queue_clear_line(prev_line);
-  prev_line = line;
-  queue_add(line, col, str);
-}
+driver_values charlie = {
+    "charlie",
+    flipped_split_arcade,
+    pros::E_MOTOR_BRAKE_BRAKE,
+    2.4,
+    2.1,
+    0.1};
+
+std::vector<driver_values> drivers = {jess, charlie};
+int default_driver = 0;
 
 void driver_selector_task() {
   queue_clear_screen();
 
   int selected_line = 1;
+  // queue_add(selected_line, 0, "|");
+
+  int count = 0;
+
+  queue_add(1, 0, " " + drivers[default_driver].name);
 
   while (true) {
-    if (master.get_digital_new_press(DIGITAL_L1)) {
+    /**
+    // Switch up/down between cycling driver and parameters
+    if (master.get_digital_new_press(UP_DOWN)) {
       queue_add(selected_line, 0, " ");
       selected_line = selected_line == 1 ? 2 : 1;
       queue_add(selected_line, 0, "|");
     }
 
-    pros::delay(50);
+    // Cycle between types in parameter
+    if (master.get_digital_new_press(CYCLE_LEFT_RIGHT)) {
+      if (selected_line == 2) {
+      }
+    }
+    */
 
-    queue_run();
+    pros::delay(25);
+    count++;
+
+    if (count == 2) {
+      queue_iterate();
+      count = 0;
+    }
   }
 }
 pros::Task DriverSelectorTask(driver_selector_task);
