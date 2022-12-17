@@ -1,7 +1,5 @@
 #include "main.h"
 
-
-
 void increase_parameter() {
   if (parameter_place >= testing.size() - 1)
     parameter_place = 0;

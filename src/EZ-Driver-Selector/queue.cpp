@@ -1,17 +1,17 @@
 #include "main.h"
 
-std::vector<controllerScreenQueue> queue;
+std::vector<controllerScreenQueue> controller_queue;
 
 void queue_add(std::uint8_t line, std::uint8_t col, std::string str) {
-  queue.push_back({line, col, str});
+  controller_queue.push_back({line, col, str});
 }
 
 void queue_iterate() {
-  if (queue.empty())
+  if (controller_queue.empty())
     return;
 
-  master.set_text(queue[0].line, queue[0].col, queue[0].str);
-  queue.erase(queue.begin());
+  master.set_text(controller_queue[0].line, controller_queue[0].col, controller_queue[0].str);
+  controller_queue.erase(controller_queue.begin());
 }
 
 void queue_clear_line(std::uint8_t line) {
