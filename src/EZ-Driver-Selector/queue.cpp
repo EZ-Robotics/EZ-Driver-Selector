@@ -17,7 +17,7 @@ void queue_iterate() {
 }
 
 void queue_clear_line(std::uint8_t line) {
-  queue_add(line, 0, "                  ");
+  queue_add(line, 0, "                         ");
 }
 
 void queue_clear_screen() {
