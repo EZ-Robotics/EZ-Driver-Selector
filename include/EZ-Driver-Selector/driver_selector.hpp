@@ -3,7 +3,7 @@
 #include "api.h"
 #include "pros/misc.h"
 
-inline pros::Controller master(pros::E_CONTROLLER_MASTER);
+inline int battery_percentage = 0;
 
 struct controllerObjects {
   std::string name;
@@ -37,12 +37,12 @@ struct driver_values {
   double active_brake;
 };
 
-inline driver_values jess = {
-    "Jess",
-    tank,
+inline driver_values critter = {
+    "Critter",
+    normal_split_arcade,
     pros::E_MOTOR_BRAKE_BRAKE,
-    0,
-    0,
+    3.3,
+    3.3,
     0.1};
 
 inline driver_values charlie = {
@@ -53,7 +53,23 @@ inline driver_values charlie = {
     2.1,
     0.1};
 
-inline std::vector<driver_values> drivers = {jess, charlie};
+inline driver_values ben = {
+    "Ben",
+    normal_split_arcade,
+    pros::E_MOTOR_BRAKE_BRAKE,
+    1.2,
+    1.1,
+    0.1};
+
+inline driver_values jess = {
+    "Jess",
+    tank,
+    pros::E_MOTOR_BRAKE_BRAKE,
+    0,
+    0,
+    0.1};
+
+inline std::vector<driver_values> drivers = {critter, charlie, ben, jess};
 inline int current_driver = 0;
 
 double current_value(driver_values *driver, int param);

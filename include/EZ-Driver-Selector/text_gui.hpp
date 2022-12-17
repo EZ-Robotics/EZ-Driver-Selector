@@ -12,5 +12,4 @@ double current_value(driver_values *driver, int param);
 void update_parameter();
 void update_name();
 void update_cursor();
-void increase_driver();
-void decrease_driver();
+void update_battery();

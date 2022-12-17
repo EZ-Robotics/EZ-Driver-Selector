@@ -18,21 +18,25 @@ double add_driver_default(driver_values *driver, int param, double added) {
       mod = driver->brake_type + added;
       mod = mod > max ? min : (mod < min ? max : mod);
       driver->brake_type = (pros::motor_brake_mode_e_t)mod;
+      // function to set brake type
       break;
     case 2:
       mod = driver->curve_l + added;
       mod = mod > max ? min : (mod < min ? max : mod);
       driver->curve_l = mod;
+      // function to set left curve
       break;
     case 3:
       mod = driver->curve_r + added;
       mod = mod > max ? min : (mod < min ? max : mod);
       driver->curve_r = mod;
+      // function to set right curve
       break;
     case 4:
       mod = driver->active_brake + added;
       mod = mod > max ? min : (mod < min ? max : mod);
       driver->active_brake = mod;
+      // function to set active brake
       break;
     default:
       return 0;
@@ -75,27 +79,16 @@ void update_name() {
   queue_clear_line(1);
   if (cursor_placement == 0) queue_add(1, 0, cursor);
   queue_add(1, 1, drivers[current_driver].name);
-  update_parameter();
+  // update_parameter();
 }
 
 void update_cursor() {
-  queue_clear_screen();
+  queue_clear_line(1);
+  queue_clear_line(2);
   update_name();
   update_parameter();
 }
 
-void increase_driver() {
-  if (current_driver >= drivers.size() - 1)
-    current_driver = 0;
-  else
-    current_driver++;
-  update_name();
-}
-
-void decrease_driver() {
-  if (current_driver <= 0)
-    current_driver = drivers.size() - 1;
-  else
-    current_driver--;
-  update_name();
+void update_battery() {
+  queue_add(0, 1, std::to_string(battery_percentage) + "%     ");
 }
