@@ -52,31 +52,51 @@ driver_values charlie = {
     0.1};
 
 std::vector<driver_values> drivers = {jess, charlie};
-int default_driver = 0;
+int current_driver = 0;
 
-double current_value(driver_values *driver, int param) {
+double add_driver_default(driver_values *driver, int param, double added) {
+  double min = testing[parameter_place].min_size;
+  double max = testing[parameter_place].max_size;
+  double mod = 0;
+
   switch (param) {
     case 0:
-      return driver->drive_mode;
+      mod = driver->drive_mode + added;
+      mod = mod > max ? min : (mod < min ? max : mod);
+      driver->drive_mode = (drive_mode_t)mod;
       break;
     case 1:
-      return driver->brake_type;
+      mod = driver->brake_type + added;
+      mod = mod > max ? min : (mod < min ? max : mod);
+      driver->brake_type = (pros::motor_brake_mode_e_t)mod;
       break;
     case 2:
-      return driver->curve_l;
+      mod = driver->curve_l + added;
+      mod = mod > max ? min : (mod < min ? max : mod);
+      driver->curve_l = mod;
       break;
     case 3:
-      return driver->curve_r;
+      mod = driver->curve_r + added;
+      mod = mod > max ? min : (mod < min ? max : mod);
+      driver->curve_r = mod;
       break;
     case 4:
-      return driver->active_brake;
+      mod = driver->active_brake + added;
+      mod = mod > max ? min : (mod < min ? max : mod);
+      driver->active_brake = mod;
       break;
     default:
       return 0;
       break;
   }
-  return 0;
+  return mod;
 }
+
+double current_value(driver_values *driver, int param) {
+  return add_driver_default(driver, param, 0);
+}
+
+std::string cursor = "-";
 
 int cursor_placement = 1;
 void update_parameter() {
@@ -85,30 +105,30 @@ void update_parameter() {
 
   // Parameter is a number
   if (testing[parameter_place].names.size() == 0) {
-    std::string num_text = std::to_string(current_value(&drivers[default_driver], parameter_place));
+    std::string num_text = std::to_string(current_value(&drivers[current_driver], parameter_place));
     parameter = num_text.substr(0, num_text.find(".") + 2);
   }
 
   // Parameter is a word
   else {
-    parameter = testing[parameter_place].names[current_value(&drivers[default_driver], parameter_place)];
+    parameter = testing[parameter_place].names[current_value(&drivers[current_driver], parameter_place)];
   }
 
   int gap = title.length() + parameter.length();
 
   queue_clear_line(2);
-  if (cursor_placement == 1) queue_add(2, 0, "-");
+  if (cursor_placement == 1) queue_add(2, 0, cursor);
   queue_add(2, 1, title);
   if (cursor_placement == 2)
-    queue_add(2, title.length() + (19 - gap), "-" + parameter + "     ");
+    queue_add(2, title.length() + (19 - gap), cursor + parameter + "     ");
   else
     queue_add(2, title.length() + (20 - gap), parameter + "     ");
 }
 
 void update_name() {
   queue_clear_line(1);
-  if (cursor_placement == 0) queue_add(1, 0, "-");
-  queue_add(1, 1, drivers[default_driver].name);
+  if (cursor_placement == 0) queue_add(1, 0, cursor);
+  queue_add(1, 1, drivers[current_driver].name);
   update_parameter();
 }
 
@@ -119,18 +139,18 @@ void update_cursor() {
 }
 
 void increase_driver() {
-  if (default_driver >= drivers.size() - 1)
-    default_driver = 0;
+  if (current_driver >= drivers.size() - 1)
+    current_driver = 0;
   else
-    default_driver++;
+    current_driver++;
   update_name();
 }
 
 void decrease_driver() {
-  if (default_driver <= 0)
-    default_driver = drivers.size() - 1;
+  if (current_driver <= 0)
+    current_driver = drivers.size() - 1;
   else
-    default_driver--;
+    current_driver--;
   update_name();
 }
 
@@ -155,46 +175,64 @@ void driver_selector_task() {
 
   int count = 0;
 
-  queue_add(1, 1, drivers[default_driver].name);
+  queue_add(1, 1, drivers[current_driver].name);
   update_parameter();
+  bool selected = false;
 
   while (true) {
-    /*
     if (master.get_digital_new_press(DIGITAL_A)) {
-      if (cursor_placement >= 2)
-        cursor_placement = 0;
-      else
-        cursor_placement++;
-      update_cursor();
-    } else if (master.get_digital_new_press(DIGITAL_Y)) {
-      if (cursor_placement == 0)
-        cursor_placement = 2;
-      else
-        cursor_placement--;
-      update_cursor();
-    }
-    */
-
-    // Display driver name
-    if (master.get_digital_new_press(DIGITAL_UP)) {
-      cursor_placement = cursor_placement >= 1 ? 0 : 1;
-      update_cursor();
-      // increase_driver();
-    } else if (master.get_digital_new_press(DIGITAL_DOWN)) {
-      cursor_placement = cursor_placement == 0 ? 1 : 0;
-      update_cursor();
-      // decrease_driver();
+      if (cursor_placement == 2) {
+        selected = !selected;
+        cursor = selected ? "+" : "-";
+        update_cursor();
+      }
     }
 
-    // Display parameters
-    if (master.get_digital_new_press(DIGITAL_LEFT)) {
-      cursor_placement = cursor_placement == 2 ? 1 : 2;
-      update_cursor();
-      // increase_parameter();
-    } else if (master.get_digital_new_press(DIGITAL_RIGHT)) {
-      cursor_placement = cursor_placement <= 1 ? 2 : 1;
-      update_cursor();
-      // decrease_parameter();
+    // If not selected, d pad moves selector
+    if (!selected) {
+      if (master.get_digital_new_press(DIGITAL_UP)) {
+        cursor_placement = cursor_placement >= 1 ? 0 : 1;
+        update_cursor();
+        // increase_driver();
+      } else if (master.get_digital_new_press(DIGITAL_DOWN)) {
+        cursor_placement = cursor_placement == 0 ? 1 : 0;
+        update_cursor();
+      }
+
+      else if (master.get_digital_new_press(DIGITAL_LEFT)) {
+        if (cursor_placement >= 2) {
+          cursor_placement = 1;
+          update_cursor();
+        } else {
+          if (cursor_placement != 0)
+            decrease_parameter();
+          else
+            decrease_driver();
+        }
+      }
+
+      else if (master.get_digital_new_press(DIGITAL_RIGHT)) {
+        if (cursor_placement == 1) {
+          cursor_placement = 2;
+          update_cursor();
+        } else {
+          if (cursor_placement != 0)
+            increase_parameter();
+          else
+            increase_driver();
+        }
+      }
+    }
+
+    // If selected, d pad cycles through menu
+    else {
+      if (master.get_digital_new_press(DIGITAL_RIGHT)) {
+        add_driver_default(&drivers[current_driver], parameter_place, testing[parameter_place].increase_by);
+        update_parameter();
+      } else if (master.get_digital_new_press(DIGITAL_LEFT)) {
+        add_driver_default(&drivers[current_driver], parameter_place, -testing[parameter_place].increase_by);
+        update_parameter();
+      }
     }
 
     pros::delay(25);
