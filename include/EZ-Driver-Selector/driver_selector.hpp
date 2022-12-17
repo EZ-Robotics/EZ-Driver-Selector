@@ -3,6 +3,8 @@
 #include "api.h"
 #include "pros/misc.h"
 
+namespace driver {
+
 inline int battery_percentage = 0;
 
 struct controllerObjects {
@@ -73,3 +75,4 @@ inline std::vector<driver_values> drivers = {critter, charlie, ben, jess};
 inline int current_driver = 0;
 
 double current_value(driver_values *driver, int param);
+}  // namespace driver
