@@ -1,5 +1,6 @@
 #include "main.h"
 
+// Parameter increased, roll over
 void increase_parameter() {
   if (parameter_place >= testing.size() - 1)
     parameter_place = 0;
@@ -8,6 +9,7 @@ void increase_parameter() {
   update_parameter();
 }
 
+// Parameter decreased, roll over
 void decrease_parameter() {
   if (parameter_place <= 0)
     parameter_place = testing.size() - 1;
@@ -16,6 +18,7 @@ void decrease_parameter() {
   update_parameter();
 }
 
+// Driver increase, roll over
 void increase_driver() {
   if (current_driver >= drivers.size() - 1)
     current_driver = 0;
@@ -25,6 +28,7 @@ void increase_driver() {
   update_parameter();
 }
 
+// Driver decrease, roll over
 void decrease_driver() {
   if (current_driver <= 0)
     current_driver = drivers.size() - 1;
@@ -34,19 +38,22 @@ void decrease_driver() {
   update_parameter();
 }
 
+// Main task
 void driver_selector_task() {
-  queue_clear_screen();
-  update_name();
+  queue_clear_screen();  // Clear default stuff from screen
+  update_name();         // Put the name on the screen, this also sets all the defaults
 
-  int count = 0;
-  bool selected = false;
+  int count = 0;          // This is Used to make sure queue_iterate is being called every 50ms
+  bool selected = false;  // Are we currently selected on the parameter?
 
-  bool enabled = false;
+  bool enabled = false;  // Is the gui active?
 
-  int timer = 0;
-  bool was_triggered = false;
+  int timer = 0;               // Used for toggling the gui on/off
+  bool was_triggered = false;  // Used for making sure button release happens on enable/disable
 
   while (true) {
+    // If digital_y is held for 500ms and the controller is not connected to a competition,
+    // the gui can be enabled and ran
     if (master.get_digital(DIGITAL_Y) && !pros::competition::is_connected()) {
       if (timer > 500 && !was_triggered) {
         enabled = !enabled;
@@ -62,13 +69,18 @@ void driver_selector_task() {
         }
       }
       timer += 25;
-
     } else {
       timer = 0;
       was_triggered = false;
     }
 
+    // If the GUI is enabled
     if (enabled) {
+      // Disable gui if you connect to a competition
+      if (pros::competition::is_connected())
+        enabled = false;
+
+      // Select button only works on the variable so you can modify it with arrows
       if (master.get_digital_new_press(DIGITAL_A)) {
         if (cursor_placement == 2) {
           selected = !selected;
@@ -77,6 +89,7 @@ void driver_selector_task() {
         }
       }
 
+      // If not selected yet, D pad is for moving through the menu
       if (!selected) {
         if (master.get_digital_new_press(DIGITAL_UP)) {
           cursor_placement = cursor_placement >= 1 ? 0 : 1;
@@ -111,6 +124,7 @@ void driver_selector_task() {
         }
       }
 
+      // Once selected, D pad is for modifying the variable of the parameter
       else {
         if (master.get_digital_new_press(DIGITAL_RIGHT)) {
           add_driver_default(&drivers[current_driver], parameter_place, testing[parameter_place].increase_by);
