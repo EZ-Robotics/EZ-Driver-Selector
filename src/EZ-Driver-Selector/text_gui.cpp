@@ -1,4 +1,5 @@
 #include "main.h"
+#include "pros/misc.h"
 
 // This is used so we treat the struct driver_values more like an array or a vector
 // when added is 0, this just returns what the current value is.  if added is anything else,
@@ -44,6 +45,49 @@ double add_driver_default(driver_values *driver, int param, double added) {
       mod = mod > max ? min : (mod < min ? max : mod);  // Make sure it's within bounds
       driver->active_brake = mod;                       // Set it as default
       break;
+
+    // Intake Button
+    case 5:
+      mod = driver->intake_button + added;              // Add increment
+      mod = mod > max ? min : (mod < min ? max : mod);  // Make sure it's within bounds
+      driver->intake_button = (controller_t)mod;        // Set it as default
+      break;
+
+    // Outake Button
+    case 6:
+      mod = driver->outake_button + added;              // Add increment
+      mod = mod > max ? min : (mod < min ? max : mod);  // Make sure it's within bounds
+      driver->outake_button = (controller_t)mod;        // Set it as default
+      break;
+
+    // Normal Button
+    case 7:
+      mod = driver->normal_button + added;              // Add increment
+      mod = mod > max ? min : (mod < min ? max : mod);  // Make sure it's within bounds
+      driver->normal_button = (controller_t)mod;        // Set it as default
+      break;
+
+    // Damp Button
+    case 8:
+      mod = driver->damp_button + added;                // Add increment
+      mod = mod > max ? min : (mod < min ? max : mod);  // Make sure it's within bounds
+      driver->damp_button = (controller_t)mod;          // Set it as default
+      break;
+
+    // Boost Button
+    case 9:
+      mod = driver->boost_button + added;               // Add increment
+      mod = mod > max ? min : (mod < min ? max : mod);  // Make sure it's within bounds
+      driver->boost_button = (controller_t)mod;         // Set it as default
+      break;
+
+    // InFail Button
+    case 10:
+      mod = driver->infail_button + added;              // Add increment
+      mod = mod > max ? min : (mod < min ? max : mod);  // Make sure it's within bounds
+      driver->infail_button = (controller_t)mod;        // Set it as default
+      break;
+
     default:
       return 0;
       break;
@@ -53,8 +97,61 @@ double add_driver_default(driver_values *driver, int param, double added) {
   chassis.set_drive_brake(driver->brake_type);
   chassis.set_curve_default(driver->curve_l, driver->curve_r);
   chassis.set_active_brake(driver->active_brake);
+  INTAKE_BUTTON = controller_button(driver->intake_button);
+  OUTAKE_BUTTON = controller_button(driver->outake_button);
+  NORMAL_BUTTON = controller_button(driver->normal_button);
+  DAMP_BUTTON = controller_button(driver->damp_button);
+  BOOST_BUTTON = controller_button(driver->boost_button);
+  INFAIL_BUTTON = controller_button(driver->infail_button);
 
   return mod;  // Return final value
+}
+
+// Outputs current button
+pros::controller_digital_e_t controller_button(int input) {
+  pros::controller_digital_e_t button;
+
+  switch (input) {
+    case CONTROLLER_DIGITAL_L1:
+      button = pros::E_CONTROLLER_DIGITAL_L1;
+      break;
+    case CONTROLLER_DIGITAL_L2:
+      button = pros::E_CONTROLLER_DIGITAL_L2;
+      break;
+    case CONTROLLER_DIGITAL_R1:
+      button = pros::E_CONTROLLER_DIGITAL_R1;
+      break;
+    case CONTROLLER_DIGITAL_R2:
+      button = pros::E_CONTROLLER_DIGITAL_R2;
+      break;
+    case CONTROLLER_DIGITAL_UP:
+      button = pros::E_CONTROLLER_DIGITAL_UP;
+      break;
+    case CONTROLLER_DIGITAL_DOWN:
+      button = pros::E_CONTROLLER_DIGITAL_DOWN;
+      break;
+    case CONTROLLER_DIGITAL_LEFT:
+      button = pros::E_CONTROLLER_DIGITAL_LEFT;
+      break;
+    case CONTROLLER_DIGITAL_RIGHT:
+      button = pros::E_CONTROLLER_DIGITAL_RIGHT;
+      break;
+    case CONTROLLER_DIGITAL_X:
+      button = pros::E_CONTROLLER_DIGITAL_X;
+      break;
+    case CONTROLLER_DIGITAL_B:
+      button = pros::E_CONTROLLER_DIGITAL_B;
+      break;
+    case CONTROLLER_DIGITAL_Y:
+      button = pros::E_CONTROLLER_DIGITAL_Y;
+      break;
+    case CONTROLLER_DIGITAL_A:
+      button = pros::E_CONTROLLER_DIGITAL_A;
+      break;
+    default:
+      break;
+  }
+  return button;
 }
 
 // Uses above function and returns the current value

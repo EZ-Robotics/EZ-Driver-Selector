@@ -1,4 +1,5 @@
 #include "main.h"
+#include "pros/misc.h"
 
 // Parameter increased, roll over
 void increase_parameter() {
@@ -38,15 +39,20 @@ void decrease_driver() {
   update_parameter();
 }
 
+bool enabled = false;  // Is the gui active?
+bool is_driver_selector_active() {
+  return enabled;
+}
+
 // Main task
 void driver_selector_task() {
   queue_clear_screen();  // Clear default stuff from screen
-  update_name();         // Put the name on the screen, this also sets all the defaults
+  cursor_placement = 1;
+  update_name();  // Put the name on the screen, this also sets all the
+  cursor_placement = 0;
 
   int count = 0;          // This is Used to make sure queue_iterate is being called every 50ms
   bool selected = false;  // Are we currently selected on the parameter?
-
-  bool enabled = false;  // Is the gui active?
 
   int timer = 0;               // Used for toggling the gui on/off
   bool was_triggered = false;  // Used for making sure button release happens on enable/disable
@@ -66,6 +72,7 @@ void driver_selector_task() {
           cursor_placement = 1;
           update_name();
           update_battery();
+          cursor_placement = 0;
         }
       }
       timer += 25;
